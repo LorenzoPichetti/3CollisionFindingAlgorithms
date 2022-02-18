@@ -71,20 +71,18 @@ int main(void) {
         /// Operation for the run-time output during the computation
         run_time_output(i, Na);
     }
-//     printf("]  Fatto!\n");
     run_time_output_end();
     
     /**
+     * 
      * In this step we sort the elements in @param End for speeading up the incoming procedure by a binary search.
      * (obviously, also @param Start must be swapped as @param End, otherwise the relation between @param Start[i]
      * and @param End[i] will be lost).
      * 
-     * @todo elliminare quickSort2 ed utilizzare solamente quickSort con NULL al terzo vettore
      */
     printf("Ordinando Start[] e End[]...");
     fflush(stdout);
-    quickSort2(End, Start, 0, Na-1, n);
-//     quickSort(End, Start, NULL, 0, Na-1, n);
+    quickSort(End, Start, NULL, 0, Na-1, n);
     printf("  Fatto!\n");
     
     

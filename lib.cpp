@@ -134,23 +134,6 @@ void quickSort(unsigned char **vec,unsigned char **vec2,unsigned char **vec3,lon
     }
 }
 
-/* low  --> Starting index,  high  --> Ending index */
-void quickSort2(unsigned char **vec,unsigned char **vec2,long long unsigned low,long long unsigned high, int n){
-    long long unsigned pi;
-    
-    
-    if(low < high && high != -1){ // siccome high è long long unsigned va messo il -1 a parte
-        //printf("entrato, %d\n", low<high);
-        /* pi is partitioning index, arr[pi] is now
-           at right place */
-//         pi = partition2(vec, vec2, low, high, n);
-        pi = partition(vec, vec2, NULL, low, high, n);
-        
-        quickSort2(vec, vec2, low, pi - 1, n);  // Before pi
-        quickSort2(vec, vec2, pi + 1, high, n); // After pi
-    }
-}
-
 int ricerca(unsigned char **vec,unsigned char *elem, long long unsigned start, long long unsigned stop, long long unsigned* r, int n){
     
     int flag = 0, val;
