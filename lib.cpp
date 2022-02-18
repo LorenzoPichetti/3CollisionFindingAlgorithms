@@ -5,8 +5,11 @@
 #include <math.h>
 #include <openssl/sha.h>
 
+/// @see documentation on 'lib.h'
+
 // -------------------------------------------------- Hash Computing --------------------------------------------------
 
+/// This function print the n-length hash in hexadecimal format
 void printhash(int n, unsigned char* h){
     int i;
     
@@ -15,6 +18,7 @@ void printhash(int n, unsigned char* h){
     fflush(stdout);
 }
 
+/// 'randhexstring' generate a random hexadecimal (@param n)-length string and @return it
 unsigned char* randhexstring(int n){
     int i;
     unsigned char *s;
@@ -28,6 +32,7 @@ unsigned char* randhexstring(int n){
     return(s);
 }
 
+/// 'copyhexstring' generate a copy of the hexadecimal (@param n)-length string @param in
 unsigned char* copyhexstring(unsigned char* in, int n){
     unsigned char* out;
     
