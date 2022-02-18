@@ -1,6 +1,6 @@
 #CC=/usr/bin/cc
 CC=/usr/bin/gcc
-LIBS=lib.c -lm -lssl -lcrypto
+LIBS=lib.c -lm -lssl -lcrypto -g -fopenmp
 
 default: uno tre
 
@@ -15,7 +15,7 @@ err: 00err.c
 
 run-uno:
 	echo "233\n3\n0.5" | ./algoritmo1 
-
+	
 clean:
 	rm algoritmo1
 	rm algoritmo3
