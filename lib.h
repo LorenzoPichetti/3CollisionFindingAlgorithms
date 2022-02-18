@@ -38,7 +38,8 @@ int ricerca(unsigned char **vec,unsigned char *elem, long long unsigned start, l
 
 // ------------------------------------------------- Output's prints --------------------------------------------------
 
+void run_time_output_start (const char msg[], int incycle_flag);
 void run_time_output (unsigned long long round, unsigned long long max_round);
-void run_time_output_end (void);
+void run_time_output_end (int incycle_flag);
 
 #endif // LIB_H

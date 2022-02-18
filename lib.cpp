@@ -19,7 +19,7 @@ unsigned char* randhexstring(int n){
     int i;
     unsigned char *s;
     
-    s = (unsigned char*)malloc(sizeof(unsigned char)*(n+1));
+    s = (unsigned char*) malloc(sizeof(unsigned char)*(n+1));
     
     for(i = 0; i<n; i++)
         s[i] = (rand()%255) +1;
@@ -41,13 +41,11 @@ unsigned char* copyhexstring(unsigned char* in, int n){
 unsigned char* bytehash(int n, unsigned char in[]){
     unsigned char temp[20];
     unsigned char *out;
-    int i;
-    char *s;
     
     SHA1(in, strlen( (const char*)in ), temp);
     
     out = (unsigned char*) malloc(sizeof(unsigned char)*(n+1));
-    for(i=0; i<n; i++)
+    for(int i=0; i<n; i++)
         out[i] = temp[i];
     out[n] = '\0';
     
@@ -166,6 +164,17 @@ int ricerca(unsigned char **vec,unsigned char *elem, long long unsigned start, l
 
 // ------------------------------------------------- Output's prints --------------------------------------------------
 
+void run_time_output_start (const char msg[], int incycle_flag) {
+    if ( incycle_flag ) {
+        printf("%s\n", msg);
+        printf("[");
+        fflush(stdout);
+    } else {
+        printf("%s", msg);
+        fflush(stdout);
+    }
+}
+
 void run_time_output (unsigned long long round, unsigned long long max_round) {
     if( max_round >= 50){
         if( round % ( max_round/50 ) == 0 ){
@@ -178,6 +187,9 @@ void run_time_output (unsigned long long round, unsigned long long max_round) {
     }
 }
 
-void run_time_output_end (void) {
-    printf("]  Fatto!\n");
+void run_time_output_end (int incycle_flag) {
+    if ( incycle_flag )
+        printf("]  Fatto!\n");
+    else
+        printf("  Fatto!\n");
 }

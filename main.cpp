@@ -6,21 +6,20 @@
 #include <openssl/sha.h>
 #include "lib.h"
 
-// ========================== Main function ===========================
+// ================================================== Main function ===================================================
 int main(void) {
+    
+    /**
+     * ---------------------------------------------- Initializing Step -----------------------------------------------
+     * 
+     * We use @param seed, @param n, and @param a as input parameters. The user will insert the random generation seed,
+     * the byte-lenght of the considered hash, and the algorithm's parameter @param a between 0 and 1/3.
+     * 
+     * @remark in this implementation the considered hash will be computed as the firsts @param n SHA1's bytes.
+     * @remark the @param f is a flag used during step 2.
+     */
     int seed, n, f;
-    unsigned char *s, *h, *s0, *s1, *h1=NULL;
-    unsigned long long N, Na, Nb, Ng, r, i, j, k;
-    int long long memory;
-    double a, b, g;
-    
-    // Per salvataggio su file
-    FILE *fp;
-    
-    // Per output di riassunto
-    char *collisione3[3];
-    int collision3flag = 0, collisioncount = 0, repcnt1 = 0, repcnt2 = 0;
-    time_t time0, time1, time2;
+    double a;
     
     // Scelta del seme di generazione
     printf("Inserisci il seme di generazione casuale: ");
@@ -33,18 +32,47 @@ int main(void) {
     //n = n*2; //Trasformo il numero di byte in numero di cifre esadecimali
     printf("Inserisci il valore a tra 0 e 0.3333: ");
     scanf("%lf", &a);
+    
+    /**
+     * We now compute from @param n and @param a the algorithm's parameters @param N, @param b, @param g and
+     * the relative parameters @param Na, @param Nb, and @param Ng.
+     * 
+     * The variable @param i, @param j, @param k, and @param r will be used as cycles variables or indices.
+     */
+    double b, g;
+    unsigned long long N, Na, Nb, Ng, r, i, j, k;
+    
     N = (int)pow(256, n);
     Na = (int)(pow(N, a)*(3));
     g = (1 - a)/2;
     Ng = (int)pow(N, g);
     b = 1 - a;
     Nb = (int)(pow(N, b)*(3));
-    printf("N = %llu   Na = %llu   Ng = %llu   Nb = %llu\n", N, Na, Ng, Nb);
+    printf("N = %llu   Na = %llu   Ng = %llu   Nb = %llu\n\n", N, Na, Ng, Nb);
     
     
-    time0 = time(NULL);
+    /**
+     * We use the following variables for storeing the compuation's informations and print them afther them
+     * end of the algorithm.
+     * 
+     * @param collisione3 and @param collision3flag are used for store the result and as stop condition.
+     * @param time0, @param time1, @param time2 are used for computing the elapsed time and @param memory for space.
+     * @param collisioncount, @param repcnt1, and @param repcnt2 are used for counting the false collisions found.
+     * @param fp is used for generating the output file ' @todo '. 
+     */
+    FILE *fp;
+    char *collisione3[3];
+    int long long memory;
+    time_t time0, time1, time2;
+    int collision3flag = 0, collisioncount = 0, repcnt1 = 0, repcnt2 = 0;
     
-    // Creazione del primo insieme
+    
+    /**
+     * All the hashes are computed and stored by using the 'openssl/sha.h' library, so are typed as 'unsigned char *'.
+     * We then use @param s, @param s0, @param s1, @param h, and @param h1 as temporary valuse and @param Start,
+     * @param End, @param Img, @param Pr1, and @param Pr2 as arraies of hashes.
+     */
+    unsigned char *s, *h, *s0, *s1, *h1=NULL;
     unsigned char *Img[Na], *Pr1[Na], *Pr2[Na], *Start[Na], *End[Na];
     
     
@@ -57,7 +85,8 @@ int main(void) {
      *     for @param Ng times (by using the cycle's variable @param j).
      *  3) We put the final result in @param s in @param End[i].
      */
-    printf("\nCostruendo Start[] e End[]...\n[");
+    time0 = time(NULL);
+    run_time_output_start ("Costruendo Start[] e End[]...", 1);
     for(i=0; i<Na; i++){
         s0 = randhexstring(n);
         Start[i] = s0; 
@@ -71,7 +100,7 @@ int main(void) {
         /// Operation for the run-time output during the computation
         run_time_output(i, Na);
     }
-    run_time_output_end();
+    run_time_output_end(1);
     
     /**
      * 
@@ -80,13 +109,12 @@ int main(void) {
      * and @param End[i] will be lost).
      * 
      */
-    printf("Ordinando Start[] e End[]...");
-    fflush(stdout);
+
+    run_time_output_start ("Ordinando Start[] e End[]...", 0);
     quickSort(End, Start, NULL, 0, Na-1, n);
-    printf("  Fatto!\n");
+    run_time_output_end (0);
     
     
-    // Costruzione del secondo gruppo e delle collisioni
     /**
      * ---------------------------------------------------- Step 2 ----------------------------------------------------
      * 
@@ -96,7 +124,7 @@ int main(void) {
      * 
      * We repete this process untill @param Na collisions are found.
      */
-    printf("Costruzione delle collisioni...\n[");
+    run_time_output_start ("Costruzione delle collisioni...", 1);
     i = 0;
     while(i < Na){
         s0 = randhexstring(n);
@@ -106,26 +134,37 @@ int main(void) {
             
             chainhash (&s, &h, n, 1);
             
-            f = 0;
             f = ricerca(End, s, 0, Na-1, &r, n);
             if(f == 1){
                 
-                free(s); // non mi serve più tenerlo in memoria (nota: h,s puntano 
-                         // la stessa parte di memoria)
+                /** Since the hash in @param s is equal to the one in @param End[r] we can freed the memory pointed by
+                 *  @param s and @param h (that is the same) and set them as NULL for save us from dangling pointer.
+                 */ 
+                free(s); s = NULL; h = NULL;
+                
+                /**
+                 * We now compute the (@param Ng - @param j)-th element of the hash chain starting on @param Start[r].
+                 * By construction we have that @param s0 and @param s1 are such that afther an hashchain of lenght j
+                 * they have the same output.
+                 */
                 s1 = copyhexstring(Start[r], n);
-                
-                
                 chainhash (&s1, &h1, n, Ng-j);
                 
-                
-                if(memcmp(s0,s1,n)!=0){
+                /**
+                 * Now, if s0 and s1 are different, we can generate a 2-collision and increment the @param i of the 
+                 * while cycle, otherwise, we restart the @param j 'for' cycle without incrementing @param i.
+                 */
+                if( memcmp(s0,s1,n) != 0 ) {
                     s = copyhexstring(s0, n);
                     
+                    /**
+                     * Until @param s and @param s1 have different hashes, we update them with their hashes. We are
+                     * sure that in at most @param j operations one 2-collision occures.
+                     */
+                    k=0;
                     h = bytehash(n, s);
                     h1 = bytehash(n, s1);
                     
-                    
-                    k=0;
                     while(memcmp(h,h1,n)!=0 && k<j+1 && find00(n,h1)!=0 && find00(n,h1)!=0){
                         
                         free(s);
@@ -138,6 +177,10 @@ int main(void) {
                         
                     }
                     
+                    /**
+                     * When this collision occures we put the hash (@param h) = (@param h1) in @param Img[i] and the
+                     * two preimages @param s and @param s1 in @param Pr1[i] and @param Pr2[i] (and we increment i).
+                     */
                     if(memcmp(h,h1,n)==0){
                         if(find00(n,s)!=1 && find00(n,s1)!=1) {
                             
@@ -150,20 +193,20 @@ int main(void) {
                         }
                     }
                 }
-                j = Ng;// Exit from teh j-loop
+                j = Ng;     // Exit from teh j-loop
+                f = 0;      // Reinitialize the flag f
             }
         }
     }
-    run_time_output_end();
+    run_time_output_end(1);
     
     
     /**
      * Ordering @param Img (and applying the same swaps to @param Pr1 and @param Pr2) to can use a binary search.
      */
-    printf("Ordinando Img[], Pr1[] e Pr2[]...  ");
-    fflush(stdout);
+    run_time_output_start ("Ordinando Img[], Pr1[] e Pr2[]...  ", 0);
     quickSort(Img, Pr1, Pr2, 0, Na-1, n);
-    printf("Fatto!\n");
+    run_time_output_end (0);
     printf("\n\n");
     
     
@@ -174,7 +217,7 @@ int main(void) {
      * 3-collision by searching @param h in @param Img.
      */
     time1 = time(NULL);
-    if(collision3flag==0){
+    if(collision3flag == 0) {
         printf("Computing %llu operations...\n[", Nb);
         for(i=0; i<Nb && collision3flag==0; i++){
             
@@ -183,7 +226,6 @@ int main(void) {
             h = bytehash(n, s);
             
             /// Binary search of @param h inside @param Img
-            f = 0;
             f = ricerca(Img, h, 0, Na-1, &r, n);
             
             /**
@@ -221,6 +263,7 @@ int main(void) {
                     repcnt2++;
                     free(s);
                 }
+                f = 0;
             }else{        
                 free(s);
             }
