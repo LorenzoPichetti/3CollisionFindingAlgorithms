@@ -5,6 +5,8 @@
 #include <math.h>
 #include <openssl/sha.h>
 
+// -------------------------------------------------- Hash Computing --------------------------------------------------
+
 void printhash(int n, unsigned char* h){
     int i;
     
@@ -24,6 +26,16 @@ unsigned char* randhexstring(int n){
     s[n] = '\0';
     
     return(s);
+}
+
+unsigned char* copyhexstring(unsigned char* in, int n){
+    unsigned char* out;
+    
+    out = (unsigned char*) malloc(sizeof(char)*(n+1));
+    memcpy(out, in, n);
+    out[n] = '\0';
+    
+    return(out);
 }
 
 unsigned char* bytehash(int n, unsigned char in[]){
@@ -52,7 +64,8 @@ int find00(int n, unsigned char* h){
     return(f);
 }
 
-//      Sorting e ricerca
+
+// ---------------------------------------------- Sorting and searching -----------------------------------------------
 
 
 void swap(unsigned char **vec, long long unsigned k, long long unsigned h){
@@ -156,4 +169,20 @@ int ricerca(unsigned char **vec,unsigned char *elem, long long unsigned start, l
     }
     
     return(flag);
+}
+
+// ------------------------------------------------- Output's prints --------------------------------------------------
+
+void run_time_output (unsigned long long round, unsigned long long max_round) {
+    
+    if( max_round >= 50){
+        if( round % ( max_round/50 ) == 0 ){
+            printf("#");
+            fflush(stdout);
+        }
+    }else{
+        printf("1");
+        fflush(stdout);
+    }
+    
 }

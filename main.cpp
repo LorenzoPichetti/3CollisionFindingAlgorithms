@@ -41,13 +41,6 @@ int main(void) {
     Nb = (int)(pow(N, b)*(3));
     printf("N = %llu   Na = %llu   Ng = %llu   Nb = %llu\n", N, Na, Ng, Nb);
     
-    // Per output di computazione
-    cond1 = (Na>=50);
-    cond2 = (Nb>=50);
-    if(cond1)
-        div1 = Na/50;
-    if(cond2)
-        div2 = Nb/50;
     
     time0 = time(NULL);
     
@@ -64,9 +57,8 @@ int main(void) {
      */
     printf("\nCostruendo Start[] e End[]...\n[");
     for(i=0; i<Na; i++){
-        s = randhexstring(n);
-        s0 = (unsigned char*) malloc(sizeof(char)*n);
-        memcpy(s0, s, n);
+        s0 = randhexstring(n);
+        s = copyhexstring(s0, n);
         Start[i] = s0;  // Devo allocare una stringa diversa altrimenti al primo ciclo del
                         // prossimo for la cella puntata da Start[i] viene liberata
         for(j=0; j<Ng; j++){
@@ -78,105 +70,67 @@ int main(void) {
                     // il valore di s verrà cambiato senza liberare la cella.
                     
         /// Operation for the run-time output during the computation
-        if(Na>=50){
-            if(i%(Na/50)==0){
-                printf("#");
-                fflush(stdout);
-            }
-        }else{
-            printf("1");
-            fflush(stdout);
-        }
+        run_time_output(i, Na);
     }
+    printf("]  Fatto!\n");
     
     /**
      * In this step we sort the elements in @param End for speeading up the incoming procedure by a binary search.
      * (obviously, also @param Start must be swapped as @param End, otherwise the relation between @param Start[i]
      * and @param End[i] will be lost).
+     * 
+     * @todo elliminare quickSort2 ed utilizzare solamente quickSort con NULL al terzo vettore
      */
-    printf("]  Fatto!\n");
     printf("Ordinando Start[] e End[]...");
     fflush(stdout);
     quickSort2(End, Start, 0, Na-1, n);
-    /// @todo elliminare quickSort2 ed utilizzare solamente quickSort con NULL al terzo vettore
 //     quickSort(End, Start, NULL, 0, Na-1, n);
     printf("  Fatto!\n");
     
-            
-    /**
-     * During this while cycle we peoduce other @param Na random hex-strings and for each one we compute a chain of
-     * @param Ng hashes; afther every hash computed we serch if it is already included in @param End.
-     * If the last condition occures, we can generate from @param Start[i] a 2-collision and store it 
-     * in @param Img @param Pr1, and @param Pr2. 
-     */
+    
     // Costruzione del secondo gruppo e delle collisioni
+    /**
+     * During this while cycle we peoduce other random hex-strings and computing a chain of @param Ng hashes. Afther
+     * every hash computed we serch if it is already included in @param End; when this last condition occures, we can
+     * derivate from @param Start[i] a 2-collision and store it in @param Img @param Pr1, and @param Pr2.
+     * 
+     * We repete this process untill @param Na collisions are found.
+     */
     printf("Costruzione delle collisioni...\n[");
     i = 0;
     while(i < Na){
         s0 = randhexstring(n);
-        s = (unsigned char*) malloc(sizeof(char)*(n+1));
-        memcpy(s, s0, n);
-        s[n] = '\0';
+        s = copyhexstring(s0, n);
         
         for(j=1; j<=Ng; j++){
             
             h = bytehash(n, s);
             free(s);
             s = h;
-            //printhash(n, s);
             
             f = 0;
             f = ricerca(End, s, 0, Na-1, &r, n);
-            //printf("%d\n", f);
             if(f == 1){
-                
-                /*printf("element found: j:%llu, s0:", j);
-                printhash(n, s0);
-                printf(", End[r]");
-                printhash(n, End[r]);
-                printf("\n");*/
                 
                 free(s); // non mi serve più tenerlo in memoria (nota: h,s puntano 
                          // la stessa parte di memoria)
-                s1 = (unsigned char*) malloc(sizeof(char)*(n+1));
-                memcpy(s1, Start[r], n);
-                s1[n] = '\0';
+                s1 = copyhexstring(Start[r], n);
                 
-                /*printhash(n, Start[r]);
-                printf(":Start[r], s1:");
-                printhash(n, s1);*/
                 
                 for(k=1; k<= Ng -j; k++){
-                    //printhash(0, bytehash(0, "ciao"));
                     
                     h1 = bytehash(n, s1);
                     free(s1);
                     s1 = h1;
                     
-                    //printf("->");
-                    //printhash(n, s1);
-                    
                 }
-                //printf(" uscito\n");
                 
                 
                 if(memcmp(s0,s1,n)!=0){
-                    s = (unsigned char*) malloc(sizeof(char)*(n+1));
-                    memcpy(s, s0, n);
-                    s[n] = '\0';
-                    
-                    /*printhash(n, s);
-                    printf(":s s1:");
-                    printhash(n, s1);
-                    printf("->");*/
+                    s = copyhexstring(s0, n);
                     
                     h = bytehash(n, s);
                     h1 = bytehash(n, s1);
-                    
-                    /*printhash(n, h);
-                    printf(":h h1:");
-                    printhash(n, h1);
-                    printf("->");*/
                     
                     
                     k=0;
@@ -190,36 +144,18 @@ int main(void) {
                         h1 = bytehash(n, s1);
                         k++;
                         
-                        /*printhash(n, h);
-                        printf(",");
-                        printhash(n, h1);
-                        printf("->");*/
-                        
                     }
                     
                     if(memcmp(h,h1,n)==0){
-                        if(find00(n,s)!=1&&find00(n,s1)!=1){
-                            /*printhash(n, s);
-                            printhash(n, s1);
-                            printf(":scritto nelle 2-collisioni\n");*/
+                        if(find00(n,s)!=1 && find00(n,s1)!=1) {
                             
                             Img[i] = h;
                             Pr1[i] = s;
                             Pr2[i] = s1;
                             i++;
                             
-                            if(cond1){
-                                if(i%div1==0){
-                                    printf("#");
-                                    fflush(stdout);
-                                }
-                            }else{
-                                printf("1");
-                                fflush(stdout);
-                            }
+                            run_time_output(i, Na);
                         }
-                    }else{
-                        //printf("00err\n");
                     }
                 }
                 j = Ng;// Exit from teh j-loop
@@ -228,31 +164,41 @@ int main(void) {
     }
     printf("]  Fatto!\n");
     
+    
+    /**
+     * Ordering @param Img (and applying the same swaps to @param Pr1 and @param Pr2) to can use a binary search.
+     */
     printf("Ordinando Img[], Pr1[] e Pr2[]...  ");
     fflush(stdout);
     quickSort(Img, Pr1, Pr2, 0, Na-1, n);
     printf("Fatto!\n");
-    
     printf("\n\n");
     
-    time1 = time(NULL);
     
-    // Step 2 algoritmo
+    /**
+     * ---------------------------------------------------- Step 2 ----------------------------------------------------
+     * 
+     * In this step we compute @param Nb random hex-strings @param s and them hash @param h until we found a 
+     * 3-collision by searching @param h in @param Img.
+     */
+    time1 = time(NULL);
     if(collision3flag==0){
         printf("Computing %llu operations...\n[", Nb);
         for(i=0; i<Nb && collision3flag==0; i++){
             
-            //printhash(0, bytehash(0, "ciao"));
-            
+            /// Generation of the random hex-string and his hash
             s = randhexstring(n);
             h = bytehash(n, s);
             
-            
+            /// Binary search of @param h inside @param Img
             f = 0;
             f = ricerca(Img, h, 0, Na-1, &r, n);
             
-                
-            if(f==1){
+            /**
+             * If we found @param h == @param Img[r] we check if @param s is equal to @param @Pr1[r] or @param Pr2[r],
+             * otherwise we have found a 3-collision and we stop the 'for' cycle.
+             */
+            if ( f==1 ){
                 if(memcmp(Pr1[r],s,n)!=0){
                     if(Pr2[r]==NULL){
                         Pr2[r] = s;
@@ -288,20 +234,18 @@ int main(void) {
             }
             free(h);
             
-            if(cond2){
-                if(i%div2==0){
-                    printf("#");
-                    fflush(stdout);
-                }
-            }else{
-                printf("1");
-                fflush(stdout);
-            }
+            run_time_output(i, Nb);
         }
         printf("Eseguiti %llu calcoli\n", i);
     }
     
     
+    /**
+     * ----------------------------------------------- Printing Results -----------------------------------------------
+     * 
+     * We now print and @return all the informations about computation: result, time elapsed and memory used.
+     * Furthermore, we also print the parameters choiced at the and of computation with the relative value of Na, Nb...
+     */
     if(collision3flag == 1){
             printf("Trovata 3-collisione al passo %llu!\n", i+1);
             for(i=0;i<3;i++){

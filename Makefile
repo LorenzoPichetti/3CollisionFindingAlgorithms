@@ -16,5 +16,6 @@ run-uno:
 	echo "233\n3\n0.5" | ./algoritmo3
 
 clean:
+	rm *.o
 	rm algoritmo3
 	rm *.txt
