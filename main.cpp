@@ -8,7 +8,7 @@
 
 // ========================== Main function ===========================
 int main(void) {
-    int seed, n, f, cond1, cond2, div1=0, div2=0;
+    int seed, n, f;
     unsigned char *s, *h, *s0, *s1, *h1=NULL;
     unsigned long long N, Na, Nb, Ng, r, i, j, k;
     int long long memory;
@@ -49,6 +49,8 @@ int main(void) {
     
     
     /**
+     * ---------------------------------------------------- Step 1 ----------------------------------------------------
+     * 
      * In this cycles we create the @param Start and @param End arraies:
      *  1) We generate @param Na random hex-strings and put them in @param Start
      *  2) For every random element Start[i] we set (@param s) = Start[i] and iteratively upedate s = hash(s)
@@ -58,21 +60,19 @@ int main(void) {
     printf("\nCostruendo Start[] e End[]...\n[");
     for(i=0; i<Na; i++){
         s0 = randhexstring(n);
-        s = copyhexstring(s0, n);
-        Start[i] = s0;  // Devo allocare una stringa diversa altrimenti al primo ciclo del
-                        // prossimo for la cella puntata da Start[i] viene liberata
-        for(j=0; j<Ng; j++){
-            h = bytehash(n, s);
-            free(s);
-            s = h;
-        }
+        Start[i] = s0; 
+        
+        s = copyhexstring(s0, n);   // Devo allocare una stringa diversa altrimenti al primo ciclo del
+        chainhash (&s, &h, n, Ng);  // prossimo for la cella puntata da Start[i] viene liberata
+        
         End[i] = s; // Non mi serve un'altra stringa perchè all'entrata del prossimo ciclo
                     // il valore di s verrà cambiato senza liberare la cella.
                     
         /// Operation for the run-time output during the computation
         run_time_output(i, Na);
     }
-    printf("]  Fatto!\n");
+//     printf("]  Fatto!\n");
+    run_time_output_end();
     
     /**
      * In this step we sort the elements in @param End for speeading up the incoming procedure by a binary search.
@@ -90,6 +90,8 @@ int main(void) {
     
     // Costruzione del secondo gruppo e delle collisioni
     /**
+     * ---------------------------------------------------- Step 2 ----------------------------------------------------
+     * 
      * During this while cycle we peoduce other random hex-strings and computing a chain of @param Ng hashes. Afther
      * every hash computed we serch if it is already included in @param End; when this last condition occures, we can
      * derivate from @param Start[i] a 2-collision and store it in @param Img @param Pr1, and @param Pr2.
@@ -104,9 +106,7 @@ int main(void) {
         
         for(j=1; j<=Ng; j++){
             
-            h = bytehash(n, s);
-            free(s);
-            s = h;
+            chainhash (&s, &h, n, 1);
             
             f = 0;
             f = ricerca(End, s, 0, Na-1, &r, n);
@@ -117,13 +117,7 @@ int main(void) {
                 s1 = copyhexstring(Start[r], n);
                 
                 
-                for(k=1; k<= Ng -j; k++){
-                    
-                    h1 = bytehash(n, s1);
-                    free(s1);
-                    s1 = h1;
-                    
-                }
+                chainhash (&s1, &h1, n, Ng-j);
                 
                 
                 if(memcmp(s0,s1,n)!=0){
@@ -162,7 +156,7 @@ int main(void) {
             }
         }
     }
-    printf("]  Fatto!\n");
+    run_time_output_end();
     
     
     /**
@@ -176,7 +170,7 @@ int main(void) {
     
     
     /**
-     * ---------------------------------------------------- Step 2 ----------------------------------------------------
+     * ---------------------------------------------------- Step 3 ----------------------------------------------------
      * 
      * In this step we compute @param Nb random hex-strings @param s and them hash @param h until we found a 
      * 3-collision by searching @param h in @param Img.

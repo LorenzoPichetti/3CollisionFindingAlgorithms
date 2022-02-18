@@ -54,6 +54,16 @@ unsigned char* bytehash(int n, unsigned char in[]){
     return(out);
 }
 
+void chainhash (unsigned char** s, unsigned char** h, int hashlength, unsigned long long chainlength) {
+    unsigned long long j;
+    
+    for(j = 0; j < chainlength; j++){
+        *h = bytehash(hashlength, *s);
+        free(*s);
+        *s = *h;
+    }
+}
+
 int find00(int n, unsigned char* h){
     int i, f=0;
     
@@ -174,7 +184,6 @@ int ricerca(unsigned char **vec,unsigned char *elem, long long unsigned start, l
 // ------------------------------------------------- Output's prints --------------------------------------------------
 
 void run_time_output (unsigned long long round, unsigned long long max_round) {
-    
     if( max_round >= 50){
         if( round % ( max_round/50 ) == 0 ){
             printf("#");
@@ -184,5 +193,8 @@ void run_time_output (unsigned long long round, unsigned long long max_round) {
         printf("1");
         fflush(stdout);
     }
-    
+}
+
+void run_time_output_end (void) {
+    printf("]  Fatto!\n");
 }

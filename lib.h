@@ -25,6 +25,7 @@ unsigned char* randhexstring(int n);
 unsigned char* copyhexstring(unsigned char* in, int n);
 
 unsigned char* bytehash(int n, unsigned char in[]);
+void chainhash (unsigned char** s, unsigned char** h, int hashlength, unsigned long long chainlength);
 
 int find00(int n, unsigned char* h);
 
@@ -40,5 +41,6 @@ int ricerca(unsigned char **vec,unsigned char *elem, long long unsigned start, l
 // ------------------------------------------------- Output's prints --------------------------------------------------
 
 void run_time_output (unsigned long long round, unsigned long long max_round);
+void run_time_output_end (void);
 
 #endif // LIB_H
