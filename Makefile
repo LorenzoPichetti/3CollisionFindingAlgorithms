@@ -19,3 +19,4 @@ clean:
 	rm *.o
 	rm algoritmo3
 	rm *.txt
+	rm 00err

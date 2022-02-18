@@ -9,7 +9,7 @@
 int main(int argc, char* argv[])
 {
     int seed = atoi(argv[2]), i, n = atoi(argv[1]), k;
-    char *s, *h;
+    unsigned char *s, *h;
     
     srand(seed);
     
@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
             k = rand()%n;
             s[k] = 0;
         }
-        h = (char*) bytehash(n, (unsigned char*) s);
+        h = (unsigned char*) bytehash(n, (unsigned char*) s);
         
         
         printhash(n, (unsigned char*) s);
