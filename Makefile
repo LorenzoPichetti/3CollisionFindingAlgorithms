@@ -4,7 +4,8 @@ LIBS= lib.o
 FLAGS= -lm -lssl -lcrypto -g
 
 default: lib.o
-	$(CC) main.c -o algoritmo3 $(LIBS) $(FLAGS)
+	$(CC) new_alg.c -o new_alg $(LIBS) $(FLAGS)
+	$(CC) naive_alg.c -o naive_alg $(LIBS) $(FLAGS)
 
 lib.o:
 	$(CC) -c lib.c -o lib.o $(FLAGS)
@@ -17,6 +18,7 @@ run-uno:
 
 clean:
 	rm *.o
-	rm algoritmo3
+	rm new_alg
+	rm naive_alg
 	rm *.txt
 	rm 00err
