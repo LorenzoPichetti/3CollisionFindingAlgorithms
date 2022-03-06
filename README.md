@@ -91,4 +91,104 @@ The idea of the new proposed algorithm is to start the second step with a databa
 This data structure implies that the second step will find a 3-collision after the first good collision, allowing us to take a smaller Na and decrease the needed memory usage without changing the algorithm's time complexity.
 Furthermore, the algorithm's main problem is to compute a 2-collision table by using a space complexity of O(Na) and a time complexity of O(Nb); the algorithm reaches this goal by using the method explained in the following section.
 
-#### Cascade technique
+#### Chain technique
+Let's define a hash-chain of length Ng as a recursively apply of *f* over a random input *x*:
+
+<table>
+<tbody>
+  <tr>
+    <td colspan="11">A hash chain of length Ng starting by x</td>
+  </tr>
+  <tr>
+    <td>x</td>
+    <td>&#8594;</td>
+    <td>f(x)</td>
+    <td>&#8594;</td>
+    <td>f(f(x))</td>
+    <td>&#8594;</td>
+    <td>f(f(x)))</td>
+    <td>&#8594;</td>
+    <td>...........</td>
+    <td>&#8594;</td>
+    <td>f <sup>Ng</sup>(x)</td>
+  </tr>
+</tbody>
+</table>
+
+Given two hash chains with the same endpoint, we can derive a two collision:
+
+<table>
+<tbody>
+  <tr>
+    <td colspan="11">Example of some chains which generate collisions</td>
+  </tr>
+  <tr>
+    <td>f201</td>
+    <td>&#8594;</td>
+    <td>02a7</td>
+    <td>&#8594;</td>
+    <td>55bc</td>
+    <td>&#8594;</td>
+    <td>a1ff</td>
+    <td>&#8594;</td>
+    <td>2095</td>
+    <td>&#8594;</td>
+    <td>d1d8</td>
+  </tr>
+  <tr>
+    <td>afdc</td>
+    <td>&#8594;</td>
+    <td>45ca</td>
+    <td>&#8594;</td>
+    <td>007e</td>
+    <td>&#8594;</td>
+    <td>a1ff</td>
+    <td>&#8594;</td>
+    <td>2095</td>
+    <td>&#8594;</td>
+    <td>d1d8</td>
+  </tr>
+  <tr>
+    <td>97e0</td>
+    <td>&#8594;</td>
+    <td>45ca</td>
+    <td>&#8594;</td>
+    <td>007e</td>
+    <td>&#8594;</td>
+    <td>a1ff</td>
+    <td>&#8594;</td>
+    <td>2095</td>
+    <td>&#8594;</td>
+    <td>d1d8</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td>c003</td>
+    <td>&#8594;</td>
+    <td>4da7</td>
+    <td>&#8594;</td>
+    <td>f00f</td>
+    <td>&#8594;</td>
+    <td>c6c6</td>
+    <td>&#8594;</td>
+    <td>d1d8</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>bb29</td>
+    <td>&#8594;</td>
+    <td>2095</td>
+    <td>&#8594;</td>
+    <td>d1d8</td>
+  </tr>
+</tbody>
+</table>
+
+
+For generating the 2-collisions table, the algorithm first computes the Na chain of a fixed length Ng by only storing the start and the end values and then calculates other chains until it derives Na 2-collisions.
