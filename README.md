@@ -49,3 +49,46 @@ The folklore algorithm is divided into two steps:
 </table>
 
 2. In the second step, we generate Nb random hash evaluations without storing them. At every cycle we have a random string *y* and its hash *f(y)*; if for some i in {1, ..., Na} the hash *f(y)* is equal to *f(x<sub>i</sub>)*, *y != x<sub>i</sub>*, and *Preimage2[i] == NULL*, we set *Preimage2[i] = y*. When we found two different *y<sub>1</sub>* and *y<sub>2</sub>* (both different from some *x<sub>i</sub>*) such that *f(x<sub>i</sub>) = f(y<sub>1</sub>) = f(y<sub>2</sub>)*, the algorithm stops and return the 3-collision *(x<sub>i</sub>, y<sub>1</sub>, y<sub>2</sub>)*.
+
+### The New Proposed algorithm
+The idea of the new proposed algorithm is to start the second step with a database that already contains 2-collisions, like in the following example:
+
+<table>
+<thead>
+  <tr>
+    <th>Vectors' names</th>
+    <th colspan="5"> Vectors' elements</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>Image</td>
+    <td>f(x<sub>1,1</sub>) = f(x<sub>1,2</sub>)</td>
+    <td>f(x<sub>2,1</sub>) = f(x<sub>2,2</sub>)</td>
+    <td>f(x<sub>3,1</sub>) = f(x<sub>3,2</sub>)</td>
+    <td>...................</td>
+    <td>f(x<sub>Na,1</sub>) = f(x<sub>Na,2</sub>)</td>
+  </tr>
+  <tr>
+    <td>Preimag1<br></td>
+    <td>x<sub>1,1</sub></td>
+    <td>x<sub>2,1</sub></td>
+    <td>x<sub>3,1</sub></td>
+    <td>...................</td>
+    <td>x<sub>Na,1</sub></td>
+  </tr>
+  <tr>
+    <td>Preimag2<br></td>
+    <td>x<sub>1,2</sub></td>
+    <td>x<sub>2,2</sub></td>
+    <td>x<sub>3,2</sub></td>
+    <td>...................</td>
+    <td>x<sub>Na,2</sub></td>
+  </tr>
+</tbody>
+</table>
+
+This data structure implies that the second step will find a 3-collision after the first good collision, allowing us to take a smaller Na and decrease the needed memory usage without changing the algorithm's time complexity.
+Furthermore, the algorithm's main problem is to compute a 2-collision table by using a space complexity of O(Na) and a time complexity of O(Nb); the algorithm reaches this goal by using the method explained in the following section.
+
+#### Cascade technique
