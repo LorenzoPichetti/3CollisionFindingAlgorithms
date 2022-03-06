@@ -16,26 +16,26 @@ The folklore algorithm is divided into two steps:
 <table>
 <thead>
   <tr>
-    <th></th>
-    <th colspan="5"></th>
+    <th>Vectors' names</th>
+    <th colspan="5"> Vectors' elements</th>
   </tr>
 </thead>
 <tbody>
   <tr>
     <td>Image</td>
-    <td>x<sub>1</sub></td>
-    <td>x<sub>2</sub></td>
-    <td>x<sub>3</sub></td>
-    <td>...................</td>
-    <td>x<sub>Na</sub></td>
-  </tr>
-  <tr>
-    <td>Preimag1<br></td>
     <td>f(x<sub>1</sub>)</td>
     <td>f(x<sub>2</sub>)</td>
     <td>f(x<sub>3</sub>)</td>
     <td>...................</td>
     <td>f(x<sub>Na</sub>)</td>
+  </tr>
+  <tr>
+    <td>Preimag1<br></td>
+    <td>x<sub>1</sub></td>
+    <td>x<sub>2</sub></td>
+    <td>x<sub>3</sub></td>
+    <td>...................</td>
+    <td>x<sub>Na</sub></td>
   </tr>
   <tr>
     <td>Preimag2<br></td>
